@@ -1,4 +1,4 @@
-# Debate Arena 🎙️
+# Debate Arena 
 
 A multiplayer AI debate app — two people join a room, each states their side, 
 and an AI argues for each person. A judge AI gives the final verdict.
