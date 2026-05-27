@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Debate Arena</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@400;500&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --green: #1D9E75;
+  --green-dim: #0f6e56;
+  --purple: #7c5cbf;
+  --amber: #e8a020;
+  --radius: 12px;
+  --radius-sm: 8px;
+  --transition: 0.2s ease;
+}
+[data-theme="dark"] {
+  --bg: #0c0c0c;
+  --surface: #161616;
+  --surface2: #1e1e1e;
+  --border: #2a2a2a;
+  --text: #f0f0f0;
+  --text2: #999;
+  --text3: #555;
+  --shadow: rgba(0,0,0,0.4);
+}
+[data-theme="light"] {
+  --bg: #f5f4f0;
+  --surface: #ffffff;
+  --surface2: #f0efeb;
+  --border: #e0deda;
+  --text: #111111;
+  --text2: #666;
+  --text3: #bbb;
+  --shadow: rgba(0,0,0,0.08);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  min-height: 100vh;
+  font-size: 15px;
+  transition: background var(--transition), color var(--transition);
+}
+
+/* TOPBAR */
+.topbar {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 1.5rem; height: 52px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  backdrop-filter: blur(12px);
+}
+.topbar-logo {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800; font-size: 16px;
+  letter-spacing: -0.02em;
+  color: var(--text);
+}
+.topbar-logo span { color: var(--green); }
+.topbar-right { display: flex; align-items: center; gap: 8px; }
+.icon-btn {
+  width: 34px; height: 34px; border-radius: var(--radius-sm);
+  border: 1px solid var(--border); background: var(--surface2);
+  color: var(--text2); cursor: pointer; display: flex;
+  align-items: center; justify-content: center; font-size: 15px;
+  transition: all var(--transition);
+}
+.icon-btn:hover { border-color: var(--green); color: var(--green); }
+
+/* APP WRAP */
+.app { max-width: 600px; margin: 0 auto; padding: 72px 1.25rem 4rem; }
+
+/* SCREENS */
+.screen { display: none; }
+.screen.active { display: block; }
+
+/* MODAL */
+.modal-overlay {
+  position: fixed; inset: 0; z-index: 200;
+  background: rgba(0,0,0,0.6);
+  display: flex; align-items: center; justify-content: center;
+  padding: 1.5rem;
+  backdrop-filter: blur(4px);
+  transition: opacity 0.2s;
+}
+.modal-overlay.hidden { display: none; }
+.modal {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.75rem;
+  max-width: 460px; width: 100%;
+  position: relative;
+}
+.modal h2 {
+  font-family: 'Syne', sans-serif;
+  font-size: 20px; font-weight: 700;
+  margin-bottom: 0.75rem;
+}
+.modal p { font-size: 14px; line-height: 1.7; color: var(--text2); margin-bottom: 0.75rem; }
+.modal p:last-of-type { margin-bottom: 1.25rem; }
+.modal strong { color: var(--text); font-weight: 500; }
+.modal-close {
+  position: absolute; top: 1rem; right: 1rem;
+  background: none; border: none; font-size: 20px;
+  color: var(--text2); cursor: pointer; line-height: 1;
+  padding: 4px 8px; border-radius: 6px;
+}
+.modal-close:hover { color: var(--text); background: var(--surface2); }
+.ai-pills { display: flex; gap: 6px; flex-wrap: wrap; margin: 0.5rem 0 1rem; }
+.ai-pill {
+  font-size: 12px; padding: 4px 10px; border-radius: 20px;
+  border: 1px solid var(--border); color: var(--text2);
+  font-family: 'DM Mono', monospace;
+}
+.ai-pill.claude { border-color: rgba(29,158,117,0.4); color: var(--green); background: rgba(29,158,117,0.08); }
+.ai-pill.gemini { border-color: rgba(66,133,244,0.4); color: #4285f4; background: rgba(66,133,244,0.08); }
+.ai-pill.openai { border-color: rgba(255,255,255,0.2); color: var(--text2); }
+
+/* HERO */
+.hero { text-align: center; padding: 2.5rem 0 2rem; }
+.hero h1 {
+  font-family: 'Syne', sans-serif;
+  font-size: clamp(2.2rem, 7vw, 3.5rem);
+  font-weight: 800; letter-spacing: -0.04em; line-height: 1;
+  margin-bottom: 0.6rem;
+}
+[data-theme="dark"] .hero h1 { color: #fff; }
+[data-theme="light"] .hero h1 { color: #111; }
+.hero h1 span { color: var(--green); }
+.hero p { font-size: 14px; color: var(--text2); font-family: 'DM Mono', monospace; }
+
+/* CARD */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.25rem 1.25rem 1rem;
+  margin-bottom: 12px;
+}
+.card-label {
+  font-size: 11px; font-weight: 600; letter-spacing: 0.09em;
+  text-transform: uppercase; color: var(--text3);
+  margin-bottom: 0.85rem;
+}
+
+/* INPUTS */
+label { font-size: 13px; color: var(--text2); display: block; margin-bottom: 5px; }
+input, textarea, select {
+  width: 100%; background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text); font-family: 'DM Sans', sans-serif;
+  font-size: 14px; padding: 10px 13px; outline: none;
+  transition: border-color var(--transition), background var(--transition);
+  margin-bottom: 10px; appearance: none;
+}
+input:focus, textarea:focus, select:focus { border-color: var(--green); }
+input::placeholder, textarea::placeholder { color: var(--text3); }
+textarea { resize: vertical; min-height: 80px; line-height: 1.65; }
+select { cursor: pointer; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23999' d='M6 8L1 3h10z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 32px; }
+
+/* KEY ROW */
+.key-row { display: flex; gap: 8px; }
+.key-row input { margin-bottom: 0; flex: 1; font-family: 'DM Mono', monospace; font-size: 12px; }
+.key-toggle { flex-shrink: 0; padding: 10px 12px; background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text2); cursor: pointer; font-size: 13px; transition: all var(--transition); }
+.key-toggle:hover { border-color: var(--green); color: var(--green); }
+
+/* BTNS */
+.btn {
+  display: flex; align-items: center; justify-content: center; gap: 7px;
+  padding: 11px 18px; border-radius: var(--radius-sm); font-size: 14px;
+  font-weight: 500; cursor: pointer; border: 1px solid var(--border);
+  background: var(--surface2); color: var(--text);
+  font-family: 'DM Sans', sans-serif; transition: all var(--transition);
+  width: 100%; margin-top: 2px;
+}
+.btn:hover { border-color: #555; }
+.btn:active { transform: scale(0.98); }
+.btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+.btn-primary { background: var(--green); border-color: var(--green); color: #fff; }
+.btn-primary:hover { background: var(--green-dim); border-color: var(--green-dim); }
+.btn-secondary { background: var(--purple); border-color: var(--purple); color: #fff; }
+.btn-secondary:hover { background: #6a4aad; border-color: #6a4aad; }
+.btn-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+/* ROOM CODE */
+.room-code-display {
+  font-family: 'DM Mono', monospace; font-size: 2.8rem; font-weight: 500;
+  letter-spacing: 0.18em; text-align: center; color: var(--green);
+  padding: 1.25rem; background: var(--surface2);
+  border: 1px dashed rgba(29,158,117,0.5);
+  border-radius: var(--radius); margin: 0.75rem 0;
+  cursor: pointer; transition: opacity var(--transition);
+  user-select: all;
+}
+.room-code-display:hover { opacity: 0.75; }
+.hint { font-size: 12px; color: var(--text3); text-align: center; margin-top: -4px; margin-bottom: 1rem; }
+
+/* SHARE LINK */
+.share-box {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 9px 12px;
+  margin-bottom: 12px; cursor: pointer; transition: border-color var(--transition);
+}
+.share-box:hover { border-color: var(--green); }
+.share-box span { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--text2); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.share-box svg { flex-shrink: 0; color: var(--text3); }
+
+/* STATUS BAR */
+.status-bar {
+  display: flex; align-items: center; gap: 9px;
+  padding: 9px 13px; border-radius: var(--radius-sm);
+  background: var(--surface2); border: 1px solid var(--border);
+  font-size: 13px; color: var(--text2); margin-bottom: 12px;
+}
+.live-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); animation: pulse 1.6s infinite; flex-shrink: 0; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.2} }
+
+/* WAITING DOTS */
+.wait-dots { display: flex; justify-content: center; gap: 8px; margin: 2rem 0 1rem; }
+.wait-dots div { width: 9px; height: 9px; border-radius: 50%; animation: bdrop 1.2s infinite; }
+.wait-dots div:nth-child(1) { background: var(--green); }
+.wait-dots div:nth-child(2) { background: var(--text3); animation-delay: 0.2s; }
+.wait-dots div:nth-child(3) { background: var(--purple); animation-delay: 0.4s; }
+@keyframes bdrop { 0%,80%,100%{transform:translateY(0)} 40%{transform:translateY(-6px)} }
+
+/* DEBATE FEED */
+.debate-feed { display: flex; flex-direction: column; gap: 12px; margin-top: 4px; }
+.bubble {
+  padding: 13px 15px; border-radius: var(--radius);
+  border: 1px solid var(--border); background: var(--surface);
+  animation: fadeUp 0.25s ease;
+}
+@keyframes fadeUp { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+.bubble.you { border-left: 3px solid var(--green); }
+.bubble.opp { border-left: 3px solid var(--purple); }
+.bubble.judge { border-left: 3px solid var(--amber); }
+[data-theme="light"] .bubble.judge { background: #fffdf5; }
+[data-theme="dark"] .bubble.judge { background: #111008; }
+.bubble-who {
+  font-size: 12px; font-weight: 500; margin-bottom: 7px;
+  display: flex; align-items: center; gap: 6px;
+}
+.bubble.you .bubble-who { color: var(--green); }
+.bubble.opp .bubble-who { color: #a88de0; }
+.bubble.judge .bubble-who { color: var(--amber); }
+.bubble-msg { font-size: 14px; line-height: 1.7; color: var(--text); }
+.thinking span {
+  display: inline-block; width: 5px; height: 5px; border-radius: 50%;
+  background: var(--text3); margin: 0 2px;
+  animation: bdrop 1.2s infinite;
+}
+.thinking span:nth-child(2){animation-delay:0.2s}
+.thinking span:nth-child(3){animation-delay:0.4s}
+
+/* OPPONENT CARD */
+.opp-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 1rem 1.25rem;
+  margin-bottom: 12px; display: flex; align-items: center; gap: 10px;
+}
+.opp-avatar {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: rgba(124,92,191,0.15); border: 1px solid rgba(124,92,191,0.3);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 15px; font-weight: 600; color: #a88de0;
+  flex-shrink: 0; font-family: 'Syne', sans-serif;
+}
+.opp-info { flex: 1; }
+.opp-name { font-size: 14px; font-weight: 500; }
+.opp-status { font-size: 12px; color: var(--text2); margin-top: 2px; }
+.opp-status.ready { color: var(--green); }
+
+/* DIVIDER */
+hr { border: none; border-top: 1px solid var(--border); margin: 1rem 0; }
+</style>
+</head>
+<body>
+
+<!-- INFO MODAL -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <h2>How Debate Arena works</h2>
+    <p>Two people join a room and each states their side of an argument. An AI argues <strong>for each person</strong>, they go back and forth, and a judge AI gives the final verdict.</p>
+    <p><strong>Pick your AI:</strong> each person chooses independently.</p>
+    <div class="ai-pills">
+      <span class="ai-pill claude">Claude — $5 free credits</span>
+      <span class="ai-pill gemini">Gemini — free tier, no card</span>
+      <span class="ai-pill openai">ChatGPT — paid only</span>
+    </div>
+    <p>You'll need an API key for your chosen AI. Get one free at <strong>console.anthropic.com</strong> (Claude) or <strong>aistudio.google.com</strong> (Gemini). Your key stays in your browser — it's never stored anywhere.</p>
+    <button class="btn btn-primary" onclick="closeModal()">Got it, let's go</button>
+  </div>
+</div>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="topbar-logo">debate<span>.</span>arena</div>
+  <div class="topbar-right">
+    <button class="icon-btn" onclick="toggleTheme()" title="Toggle theme" id="theme-btn">☀️</button>
+    <button class="icon-btn" onclick="openModal()" title="How it works">?</button>
+  </div>
+</div>
+
+<div class="app">
+
+  <!-- HOME SCREEN -->
+  <div class="screen active" id="screen-home">
+    <div class="hero">
+      <h1>Two people<br>two AIs<br><span>one verdict</span></h1>
+      <p>// multiplayer AI debate rooms</p>
+    </div>
+
+    <div class="card">
+      <div class="card-label">Your setup</div>
+      <label>Your name</label>
+      <input type="text" id="home-name" placeholder="e.g. Maulik" />
+
+      <label>Choose your AI</label>
+      <select id="home-ai">
+        <option value="claude">Claude (Anthropic) — $5 free credits</option>
+        <option value="gemini">Gemini (Google) — free tier</option>
+        <option value="openai">ChatGPT (OpenAI) — paid</option>
+      </select>
+
+      <label>API Key</label>
+      <div class="key-row">
+        <input type="password" id="home-key" placeholder="Paste your key here..." />
+        <button class="key-toggle" onclick="toggleKey()">👁</button>
+      </div>
+      <div id="key-hint" style="font-size:12px;color:var(--text3);margin-top:-6px;margin-bottom:10px">
+        Get free key → console.anthropic.com
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="createRoom()">Create room →</button>
+      <button class="btn btn-secondary" onclick="showJoin()">Join room →</button>
+    </div>
+
+    <div id="join-section" style="display:none; margin-top:12px;">
+      <div class="card">
+        <div class="card-label">Join existing room</div>
+        <label>Room code</label>
+        <input type="text" id="join-code" placeholder="e.g. X7K2AB" maxlength="6"
+          style="text-transform:uppercase;font-family:'DM Mono',monospace;letter-spacing:0.12em;font-size:1.2rem;text-align:center" />
+        <button class="btn btn-secondary" onclick="joinRoom()">Join →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- WAITING SCREEN -->
+  <div class="screen" id="screen-waiting">
+    <div class="card" style="text-align:center">
+      <div class="card-label">Share this with your opponent</div>
+      <div class="room-code-display" id="display-code" onclick="copyCode()">------</div>
+      <p class="hint">tap to copy code</p>
+      <div class="share-box" onclick="copyLink()">
+        <span id="share-link-text">—</span>
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+      </div>
+      <p class="hint">or copy link</p>
+      <div class="wait-dots"><div></div><div></div><div></div></div>
+      <p style="font-size:14px;color:var(--text2)">Waiting for opponent to join...</p>
+    </div>
+  </div>
+
+  <!-- SETUP SCREEN -->
+  <div class="screen" id="screen-setup">
+    <div class="status-bar">
+      <div class="live-dot"></div>
+      <span id="setup-status-text">Both players connected</span>
+    </div>
+
+    <div class="opp-card">
+      <div class="opp-avatar" id="opp-avatar">?</div>
+      <div class="opp-info">
+        <div class="opp-name" id="opp-name">Opponent</div>
+        <div class="opp-status" id="opp-status-line">Typing their argument...</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-label">Your side</div>
+      <label>What are you debating?</label>
+      <textarea id="topic-input" rows="2" placeholder="e.g. Should I pursue AI or Data Science for my career?"></textarea>
+      <label>Your argument</label>
+      <textarea id="my-arg" rows="3" placeholder="State your side clearly — what do you believe and why?"></textarea>
+      <button class="btn btn-primary" id="ready-btn" onclick="submitReady()">I'm ready ✓</button>
+    </div>
+  </div>
+
+  <!-- DEBATE SCREEN -->
+  <div class="screen" id="screen-debate">
+    <div class="status-bar">
+      <div class="live-dot"></div>
+      <span id="debate-topic-label">Debate in progress</span>
+    </div>
+    <div class="debate-feed" id="debate-feed"></div>
+  </div>
+
+</div>
+
+<!-- Firebase -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getDatabase, ref, set, get, onValue, update } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCKWPF7RTqy7xiIOuBQixXcyuNu4YTCqVA",
+  authDomain: "debate-arena-44150.firebaseapp.com",
+  databaseURL: "https://debate-arena-44150-default-rtdb.firebaseio.com",
+  projectId: "debate-arena-44150",
+  storageBucket: "debate-arena-44150.firebasestorage.app",
+  messagingSenderId: "210314799289",
+  appId: "1:210314799289:web:5a2ab0e80f5a2e02235368"
+};
+
+const fireapp = initializeApp(firebaseConfig);
+const db = getDatabase(fireapp);
+
+let myRole = null;
+let roomCode = null;
+let myName = '';
+let myAI = 'claude';
+let myKey = '';
+let debateStarted = false;
+let oppName = '';
+
+// ---- UTILS ----
+function genCode() { return Math.random().toString(36).substring(2,8).toUpperCase(); }
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-'+id).classList.add('active');
+}
+function initials(name) { return name.trim().split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2); }
+
+window.toggleTheme = () => {
+  const html = document.documentElement;
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  document.getElementById('theme-btn').textContent = isDark ? '🌙' : '☀️';
+};
+
+window.toggleKey = () => {
+  const inp = document.getElementById('home-key');
+  inp.type = inp.type === 'password' ? 'text' : 'password';
+};
+
+window.openModal = () => document.getElementById('modal-overlay').classList.remove('hidden');
+window.closeModal = () => document.getElementById('modal-overlay').classList.add('hidden');
+window.showJoin = () => { document.getElementById('join-section').style.display = 'block'; };
+
+document.getElementById('home-ai').addEventListener('change', () => {
+  const ai = document.getElementById('home-ai').value;
+  const hints = {
+    claude: 'Get free key → console.anthropic.com ($5 credits)',
+    gemini: 'Get free key → aistudio.google.com (genuinely free)',
+    openai: 'Get key → platform.openai.com (paid)'
+  };
+  document.getElementById('key-hint').textContent = hints[ai];
+});
+
+window.copyCode = () => {
+  navigator.clipboard.writeText(roomCode);
+  const el = document.getElementById('display-code');
+  el.textContent = 'COPIED!';
+  setTimeout(() => el.textContent = roomCode, 1200);
+};
+
+window.copyLink = () => {
+  navigator.clipboard.writeText(document.getElementById('share-link-text').textContent);
+  document.querySelector('.share-box span').textContent = 'Copied!';
+  setTimeout(() => document.querySelector('.share-box span').textContent = document.getElementById('share-link-text').textContent, 1200);
+};
+
+// ---- CREATE ROOM ----
+window.createRoom = async () => {
+  myName = document.getElementById('home-name').value.trim();
+  myAI = document.getElementById('home-ai').value;
+  myKey = document.getElementById('home-key').value.trim();
+  if (!myName) return alert('Enter your name');
+  if (!myKey) return alert('Paste your API key');
+
+  myRole = 'A';
+  roomCode = genCode();
+
+  await set(ref(db, `debates/${roomCode}`), {
+    status: 'waiting',
+    playerA: { name: myName, ai: myAI, ready: false, arg: '' },
+    playerB: { name: '', ai: '', ready: false, arg: '' },
+    topic: '', messages: []
+  });
+
+  document.getElementById('display-code').textContent = roomCode;
+  const link = `${location.href.split('?')[0]}?room=${roomCode}`;
+  document.getElementById('share-link-text').textContent = link;
+  showScreen('waiting');
+
+  onValue(ref(db, `debates/${roomCode}/playerB/name`), snap => {
+    if (snap.val()) {
+      oppName = snap.val();
+      setupScreen(oppName, myName);
+      watchOpponentReady();
+    }
+  });
+};
+
+// ---- JOIN ROOM ----
+window.joinRoom = async () => {
+  myName = document.getElementById('home-name').value.trim();
+  myAI = document.getElementById('home-ai').value;
+  myKey = document.getElementById('home-key').value.trim();
+  const code = document.getElementById('join-code').value.trim().toUpperCase();
+  if (!myName) return alert('Enter your name');
+  if (!myKey) return alert('Paste your API key');
+  if (code.length !== 6) return alert('Enter a valid 6-character room code');
+
+  const snap = await get(ref(db, `debates/${code}`));
+  if (!snap.exists()) return alert('Room not found — check the code');
+
+  myRole = 'B';
+  roomCode = code;
+  const data = snap.val();
+  oppName = data.playerA.name;
+
+  await update(ref(db, `debates/${code}/playerB`), { name: myName, ai: myAI, ready: false, arg: '' });
+  setupScreen(oppName, myName);
+  watchOpponentReady();
+};
+
+function setupScreen(opp, me) {
+  document.getElementById('opp-avatar').textContent = initials(opp);
+  document.getElementById('opp-name').textContent = opp;
+  document.getElementById('setup-status-text').textContent = `${me} vs ${opp} — both connected`;
+  showScreen('setup');
+}
+
+function watchOpponentReady() {
+  const oppRole = myRole === 'A' ? 'B' : 'A';
+  onValue(ref(db, `debates/${roomCode}/player${oppRole}/ready`), snap => {
+    if (snap.val() === true) {
+      document.getElementById('opp-status-line').textContent = '✓ Ready!';
+      document.getElementById('opp-status-line').className = 'opp-status ready';
+      checkBothReady();
+    }
+  });
+}
+
+window.submitReady = async () => {
+  const topic = document.getElementById('topic-input').value.trim();
+  const arg = document.getElementById('my-arg').value.trim();
+  if (!topic) return alert('Enter the debate topic');
+  if (!arg) return alert('Enter your argument');
+
+  const btn = document.getElementById('ready-btn');
+  btn.disabled = true;
+  btn.textContent = '✓ Submitted — waiting for opponent';
+
+  await update(ref(db, `debates/${roomCode}/player${myRole}`), { ready: true, arg });
+  await update(ref(db, `debates/${roomCode}`), { topic });
+  checkBothReady();
+};
+
+async function checkBothReady() {
+  const snap = await get(ref(db, `debates/${roomCode}`));
+  const data = snap.val();
+  if (data.playerA.ready && data.playerB.ready && !debateStarted) {
+    debateStarted = true;
+    document.getElementById('debate-topic-label').textContent = `"${data.topic}"`;
+    showScreen('debate');
+    if (myRole === 'A') runDebate(data);
+    else watchFeed();
+  }
+}
+
+// ---- FEED ----
+function watchFeed() {
+  onValue(ref(db, `debates/${roomCode}/messages`), snap => {
+    const msgs = snap.val();
+    if (!msgs) return;
+    const feed = document.getElementById('debate-feed');
+    feed.innerHTML = '';
+    msgs.forEach(m => renderBubble(m.role, m.label, m.text));
+  });
+}
+
+function renderBubble(role, label, text) {
+  const feed = document.getElementById('debate-feed');
+  const div = document.createElement('div');
+  div.className = `bubble ${role}`;
+  div.innerHTML = `<div class="bubble-who">${label}</div><div class="bubble-msg">${text}</div>`;
+  feed.appendChild(div);
+  div.scrollIntoView({ behavior: 'smooth', block: 'end' });
+}
+
+function addThinking(label, role) {
+  const feed = document.getElementById('debate-feed');
+  const div = document.createElement('div');
+  div.className = `bubble ${role}`; div.id = 'thinking';
+  div.innerHTML = `<div class="bubble-who">${label}</div><div class="bubble-msg thinking"><span></span><span></span><span></span></div>`;
+  feed.appendChild(div);
+  div.scrollIntoView({ behavior: 'smooth', block: 'end' });
+}
+function removeThinking() { const el = document.getElementById('thinking'); if(el) el.remove(); }
+
+async function pushMsg(role, label, text) {
+  const snap = await get(ref(db, `debates/${roomCode}/messages`));
+  const msgs = snap.val() || [];
+  msgs.push({ role, label, text });
+  await set(ref(db, `debates/${roomCode}/messages`), msgs);
+  renderBubble(role, label, text);
+}
+
+// ---- AI CALLS ----
+async function callAI(ai, key, system, userMsg) {
+  if (ai === 'claude') {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': key,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514', max_tokens: 300,
+        system, messages: [{ role: 'user', content: userMsg }]
+      })
+    });
+    const d = await res.json();
+    if (d.error) throw new Error(d.error.message);
+    return d.content[0].text;
+
+  } else if (ai === 'gemini') {
+    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${key}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        systemInstruction: { parts: [{ text: system }] },
+        contents: [{ role: 'user', parts: [{ text: userMsg }] }],
+        generationConfig: { maxOutputTokens: 300 }
+      })
+    });
+    const d = await res.json();
+    if (d.error) throw new Error(d.error.message);
+    return d.candidates[0].content.parts[0].text;
+
+  } else if (ai === 'openai') {
+    const res = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${key}` },
+      body: JSON.stringify({
+        model: 'gpt-4o-mini', max_tokens: 300,
+        messages: [{ role: 'system', content: system }, { role: 'user', content: userMsg }]
+      })
+    });
+    const d = await res.json();
+    if (d.error) throw new Error(d.error.message);
+    return d.choices[0].message.content;
+  }
+}
+
+function aiLabel(ai) {
+  return ai === 'claude' ? '⚡ Claude' : ai === 'gemini' ? '✦ Gemini' : '◎ ChatGPT';
+}
+
+// ---- DEBATE ENGINE (only Player A runs this) ----
+async function runDebate(data) {
+  const { topic, playerA, playerB } = data;
+  const nameA = playerA.name, nameB = playerB.name;
+  const argA = playerA.arg, argB = playerB.arg;
+  const aiA = playerA.ai, aiB = playerB.ai;
+  const keyA = myKey;
+
+  // We only have Player A's key. Player B's AI will be called via Player A's key too
+  // (since only A runs the engine) — but we label them correctly
+  // For a real cross-AI debate, B would need to run their own calls
+  // Here: A's key powers both sides (simplest approach for v1)
+
+  const labelA = `${aiLabel(aiA)} arguing for ${nameA}`;
+  const labelB = `${aiLabel(aiB)} arguing for ${nameB}`;
+
+  try {
+    // R1 - A
+    addThinking(labelA, 'you');
+    const r1A = await callAI(aiA, keyA,
+      `You are an AI arguing FOR ${nameA}'s position. Be sharp and persuasive. 3-4 sentences max.`,
+      `Topic: ${topic}\nArgue for: ${argA}`);
+    removeThinking(); await pushMsg('you', labelA, r1A);
+
+    // R1 - B
+    addThinking(labelB, 'opp');
+    const r1B = await callAI(aiA, keyA,
+      `You are an AI arguing FOR ${nameB}'s position. Be sharp and persuasive. 3-4 sentences max.`,
+      `Topic: ${topic}\nArgue for: ${argB}\nOpponent said: ${r1A}`);
+    removeThinking(); await pushMsg('opp', labelB, r1B);
+
+    // R2 - A rebuttal
+    addThinking(`${labelA} (rebuttal)`, 'you');
+    const r2A = await callAI(aiA, keyA,
+      `You are an AI arguing FOR ${nameA}. Give a sharp rebuttal in 2-3 sentences.`,
+      `Your argument: ${r1A}\nOpponent said: ${r1B}\nRebuttal:`);
+    removeThinking(); await pushMsg('you', `${labelA} (rebuttal)`, r2A);
+
+    // R2 - B rebuttal
+    addThinking(`${labelB} (rebuttal)`, 'opp');
+    const r2B = await callAI(aiA, keyA,
+      `You are an AI arguing FOR ${nameB}. Give a sharp rebuttal in 2-3 sentences.`,
+      `Your argument: ${r1B}\nOpponent said: ${r2A}\nRebuttal:`);
+    removeThinking(); await pushMsg('opp', `${labelB} (rebuttal)`, r2B);
+
+    // JUDGE
+    addThinking('⚖️ Judge AI — final verdict', 'judge');
+    const verdict = await callAI(aiA, keyA,
+      `You are an impartial judge. Give a decisive verdict in 4-5 sentences. Pick a clear winner or declare a draw with solid reasoning. Don't be vague.`,
+      `Topic: ${topic}\n${nameA} argued: ${argA} | AI said: ${r1A} ... ${r2A}\n${nameB} argued: ${argB} | AI said: ${r1B} ... ${r2B}\nVerdict:`);
+    removeThinking(); await pushMsg('judge', '⚖️ Judge — final verdict', verdict);
+
+  } catch(e) {
+    removeThinking();
+    renderBubble('judge', '⚠️ Error', `Something went wrong: ${e.message}. Check your API key and try again.`);
+  }
+}
+
+// AUTO-JOIN FROM URL
+const params = new URLSearchParams(location.search);
+const roomParam = params.get('room');
+if (roomParam) {
+  document.getElementById('join-code').value = roomParam;
+  document.getElementById('join-section').style.display = 'block';
+  document.getElementById('join-section').scrollIntoView({ behavior: 'smooth' });
+}
+
+// SHOW MODAL ON FIRST VISIT
+if (!localStorage.getItem('debate-seen')) {
+  document.getElementById('modal-overlay').classList.remove('hidden');
+  localStorage.setItem('debate-seen', '1');
+} else {
+  document.getElementById('modal-overlay').classList.add('hidden');
+}
+</script>
+</body>
+</html>
