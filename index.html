@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚔️</text></svg>">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Debate Arena</title>
@@ -641,7 +640,7 @@ async function callAI(ai, key, system, userMsg) {
     return d.content[0].text;
 
   } else if (ai === 'gemini') {
-    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${key}`, {
+    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${key}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -652,7 +651,17 @@ async function callAI(ai, key, system, userMsg) {
     });
     const d = await res.json();
     if (d.error) throw new Error(d.error.message);
-    return d.candidates[0].content.parts[0].text;
+    if (!d.candidates || d.candidates.length === 0) {
+      throw new Error("No response candidates returned. The request may have been blocked by safety filters.");
+    }
+    const candidate = d.candidates[0];
+    if (candidate.finishReason && candidate.finishReason !== "STOP" && candidate.finishReason !== "MAX_TOKENS") {
+      throw new Error(`Generation stopped early due to finish reason: ${candidate.finishReason}`);
+    }
+    if (!candidate.content || !candidate.content.parts || candidate.content.parts.length === 0) {
+      throw new Error("Response candidate has no content parts.");
+    }
+    return candidate.content.parts[0].text;
 
   } else if (ai === 'openai') {
     const res = await fetch('https://api.openai.com/v1/chat/completions', {
