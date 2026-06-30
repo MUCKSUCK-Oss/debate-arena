@@ -256,20 +256,10 @@
       </div>
     </div>
 
-    <div class="grid-2">
-      <div class="input-group">
-        <label>Select AI Model Platform</label>
-        <select id="ai-engine" onchange="toggleKeyPlaceholder()">
-          <option value="gemini">Google Gemini (Free Tier / Fallback)</option>
-          <option value="openai">OpenAI ChatGPT (gpt-4o-mini)</option>
-          <option value="claude">Anthropic Claude (claude-3-5-haiku)</option>
-        </select>
-      </div>
-      <div class="input-group">
-        <label>Provider Secret Key <span style="text-transform:none; color:var(--primary); font-weight:400;">— stays on your device only</span></label>
-        <input type="password" id="api-key" placeholder="Paste your key here">
-      </div>
-    </div>
+    <div style="display:none;">
+  <select id="ai-engine"></select>
+  <input type="password" id="api-key">
+</div>
 
     <div class="input-group">
       <label>Debate Motion / Topic</label>
