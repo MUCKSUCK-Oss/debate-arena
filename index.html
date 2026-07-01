@@ -422,7 +422,7 @@
     }
 
     else if (engine === 'hackclub') {
-      const res = await fetch('https://ai.hackclub.com/proxy/v1/chat/completions', {
+      const res = await fetch('https://ai.hackclub.com/chat/completions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${key}` },
         body: JSON.stringify({
