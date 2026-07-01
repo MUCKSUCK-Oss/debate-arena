@@ -424,6 +424,7 @@
     else if (engine === 'hackclub') {
       const res = await fetch('https://ai.hackclub.com/proxy/v1/chat/completions', {
         method: 'POST',
+        mode: 'cors',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${key}` },
         body: JSON.stringify({
           model: window._hcModel || 'google/gemini-2.5-flash',
