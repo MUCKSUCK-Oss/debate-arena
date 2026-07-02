@@ -422,7 +422,7 @@
     }
 
     else if (engine === 'hackclub') {
-      const res = await fetch('https://ai.hackclub.com/proxy/v1/chat/completions', {
+      const res = await fetch('https://debate-proxy.moliekkaushik.workers.dev', {
         method: 'POST',
         mode: 'cors',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${key}` },
