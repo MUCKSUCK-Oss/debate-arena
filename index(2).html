@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Debate Arena</title>
+  <link rel="stylesheet" href="styles.css">
+
+  <!-- Firebase -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getDatabase, ref, set, onValue, push, update, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCKWPF7RTqy7xiIOuBQixXcyuNu4YTCqVA",
+      authDomain: "debate-arena-44150.firebaseapp.com",
+      databaseURL: "https://debate-arena-44150-default-rtdb.firebaseio.com",
+      projectId: "debate-arena-44150",
+      storageBucket: "debate-arena-44150.firebasestorage.app",
+      messagingSenderId: "210314799289",
+      appId: "1:210314799289:web:5a2ab0e80f5a2e02235368"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db  = getDatabase(app);
+
+    window.dbRefs = { ref, set, onValue, push, update, get, db };
+    window.dispatchEvent(new Event('dbReady'));
+  </script>
+</head>
+<body>
+
+<header class="site-header">
+  <div>
+    <h1>Debate Arena</h1>
+    <p>Multi-device AI debate platform</p>
+  </div>
+  <button id="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">☀️</button>
+</header>
+
+<div class="container">
+
+  <!-- Setup panel -->
+  <div id="setup-panel" class="card">
+
+    <!-- HC / NPC tabs injected here by setup.js -->
+
+    <!-- Hidden legacy selects (used by NPC tab in setup.js) -->
+    <div style="display:none;">
+      <select id="ai-engine"></select>
+      <input type="password" id="api-key">
+    </div>
+
+    <div class="grid-2">
+      <div class="input-group">
+        <label>Your Handle</label>
+        <input type="text" id="player-name" placeholder="e.g. Maulik">
+      </div>
+      <div class="input-group">
+        <label>Room Code (To Join)</label>
+        <input type="text" id="room-id-input" placeholder="e.g. 4829">
+      </div>
+    </div>
+
+    <div class="input-group">
+      <label>Debate Motion / Topic</label>
+      <input type="text" id="debate-topic" value="Should AI software development tools completely replace junior engineers?">
+    </div>
+
+    <div class="input-group">
+      <label>Your Core Stance</label>
+      <textarea id="player-premise" rows="3" placeholder="State your position and argument strategy..."></textarea>
+    </div>
+
+    <div class="button-row">
+      <button onclick="createRoom()">Create New Room</button>
+      <button class="secondary-btn" onclick="joinRoom()">Join Existing Room</button>
+    </div>
+  </div>
+
+  <!-- Arena panel -->
+  <div id="arena-panel" class="card arena-panel">
+    <div class="arena-header">
+      <div>
+        <label>Active Motion</label>
+        <h3 id="active-topic-title">Topic</h3>
+      </div>
+      <div style="display:flex; flex-direction:column; align-items:flex-end; gap:0.5rem;">
+        <label id="room-display-id"></label>
+        <button class="secondary-btn" onclick="resetApp()" style="width:auto; padding:0.4rem 0.875rem; font-size:0.72rem;">Exit Arena</button>
+      </div>
+    </div>
+
+    <div class="chat-log" id="chat-box"></div>
+
+    <div class="status-wrapper">
+      <div id="status-console">Connecting...</div>
+    </div>
+  </div>
+
+  <p class="tagline">Debate. Orchestrate. Innovate.</p>
+</div>
+
+<script src="app.js"></script>
+<script src="setup.js"></script>
+</body>
+</html>
