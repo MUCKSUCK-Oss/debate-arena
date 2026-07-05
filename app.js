@@ -1,5 +1,3 @@
-// app.js — Debate Arena core game logic
-// Handles Firebase rooms, AI turn engine, and arena UI state.
 
 let currentRoomCode = null;
 let playerSide = null;
@@ -8,7 +6,6 @@ let localEngine = 'hackclub';
 let isProcessing = false;
 let renderedTurns = new Set();
 
-// ── Theme toggle ───────────────────────────────────────────
 function toggleTheme() {
   const html = document.documentElement;
   const isDark = html.getAttribute('data-theme') === 'dark';
@@ -17,13 +14,11 @@ function toggleTheme() {
 }
 window.toggleTheme = toggleTheme;
 
-// Set initial icon
 document.addEventListener('DOMContentLoaded', () => {
   const btn = document.getElementById('theme-toggle');
   if (btn) btn.textContent = '☀️';
 });
 
-// ── Input validation ───────────────────────────────────────
 function validateInputs() {
   const name    = document.getElementById('player-name').value.trim();
   const topic   = document.getElementById('debate-topic').value.trim();
@@ -58,7 +53,6 @@ function toggleKeyPlaceholder() {
 }
 window.toggleKeyPlaceholder = toggleKeyPlaceholder;
 
-// ── Multi-engine AI router ─────────────────────────────────
 async function invokeModelEndpoint(engine, key, systemPrompt, userMessage) {
 
   if (engine === 'gemini') {
@@ -167,7 +161,6 @@ async function invokeModelEndpoint(engine, key, systemPrompt, userMessage) {
   }
 }
 
-// ── UI helpers ─────────────────────────────────────────────
 function appendTextBubble(role, identity, text) {
   const box = document.getElementById('chat-box');
   const b = document.createElement('div');
@@ -226,7 +219,6 @@ window.resetApp = function () {
   document.getElementById('chat-box').innerHTML = '';
 };
 
-// ── Turn engine ────────────────────────────────────────────
 async function executeTurnEngineOrchestration(session) {
   if (isProcessing) return;
 
@@ -296,7 +288,6 @@ async function executeTurnEngineOrchestration(session) {
   }
 }
 
-// ── Firebase room listeners ────────────────────────────────
 function listenToArenaSession(code) {
   const { ref, onValue, db } = window.dbRefs;
   onValue(ref(db, `rooms/${code}`), async (snapshot) => {
@@ -316,7 +307,6 @@ function listenToArenaSession(code) {
   });
 }
 
-// ── Room creation ──────────────────────────────────────────
 window.createRoom = function () {
   if (!validateInputs()) return;
 
@@ -349,7 +339,6 @@ window.createRoom = function () {
   }).catch(e => alert("Firebase error: " + e.message));
 };
 
-// ── Room joining ───────────────────────────────────────────
 window.joinRoom = function () {
   const code = document.getElementById('room-id-input').value.trim();
   if (!code) return alert("Supply target room sequence.");
