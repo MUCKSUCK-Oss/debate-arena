@@ -12,6 +12,12 @@ Getting the state machine right took a while. Room statuses move through stages 
 
 Firebase threw a `PERMISSION_DENIED` at me early on, because the default security rules lock everything down by default. Took some digging to figure out how to open things up for testing without leaving it wide open. I also hit a race condition in the array logic — if one device had a slower connection, data could arrive out of order and break the whole simulation. Fixing that took more patience than I expected going in.
 
+## AI Usage
+
+I used AI a little along the way — mostly for debugging. The Firebase `PERMISSION_DENIED` mess and the race condition in the array logic both took some back-and-forth with Claude before I figured out the fix. I also used it to sanity-check the debate state machine when I got confused about which stage should trigger what.
+
+The core logic, the state machine, the debate flow, all of that I wrote and tested myself.
+
 ## What it actually does
 
 Debate Arena is a single-page, cyberpunk-themed web app that runs automated multi-agent debates across two devices.
