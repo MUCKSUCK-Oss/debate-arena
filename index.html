@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
   <meta charset="UTF-8">
@@ -5,6 +6,7 @@
   <title>Debate Arena</title>
   <link rel="stylesheet" href="styles.css">
 
+  <!-- Firebase -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getDatabase, ref, set, onValue, push, update, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
@@ -38,9 +40,12 @@
 
 <div class="container">
 
-
+  <!-- Setup panel -->
   <div id="setup-panel" class="card">
 
+    <!-- HC / NPC tabs injected here by setup.js -->
+
+    <!-- Hidden legacy selects (used by NPC tab in setup.js) -->
     <div style="display:none;">
       <select id="ai-engine"></select>
       <input type="password" id="api-key">
@@ -73,6 +78,7 @@
     </div>
   </div>
 
+  <!-- Arena panel -->
   <div id="arena-panel" class="card arena-panel">
     <div class="arena-header">
       <div>
@@ -99,3 +105,4 @@
 <script src="setup.js"></script>
 </body>
 </html>
+
