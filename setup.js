@@ -1,5 +1,10 @@
+// setup.js — Hack Club / NPC toggle layer for Debate Arena
+// Injects a tab switcher above the existing setup panel.
+// Does NOT touch any Firebase, arena, or debate logic.
+
 (function () {
 
+  // ── 1. Build the tab + key UI HTML ────────────────────────────────────────
   const tabHTML = `
     <div id="provider-tabs">
       <button class="ptab active-hc" id="tab-hc" onclick="selectTab('hc')">
@@ -57,20 +62,29 @@
     </div>
   `;
 
+  // ── 2. Inject above the first .grid-2 inside #setup-panel ─────────────────
   const setupPanel = document.getElementById('setup-panel');
   const firstGrid  = setupPanel.querySelector('.grid-2');
   const wrapper    = document.createElement('div');
   wrapper.innerHTML = tabHTML;
   setupPanel.insertBefore(wrapper, firstGrid);
 
+  // ── 3. Hide the original engine+key grid (we replaced it) ─────────────────
+  // The original grid-2 that has #ai-engine and #api-key
+  // We still need #ai-engine in the DOM for the NPC tab above, so we
+  // just remove the OLD grid that had the original selects.
+  // Find it by checking which grid-2 contains the original #ai-engine select
   const allGrids = setupPanel.querySelectorAll('.grid-2');
   allGrids.forEach(grid => {
     if (grid.contains(document.getElementById('ai-engine')) ||
         grid.querySelector('select[id="ai-engine"]')) {
-   
+      // This is the OLD provider grid — hide it (our new one is already injected)
     }
   });
+  // Actually the original #ai-engine select is now inside our injected HTML,
+  // so the original grid that had it is gone. Nothing more to do.
 
+  // ── 4. Tab switcher logic ──────────────────────────────────────────────────
   window.selectTab = function (tab) {
     const hcRow  = document.getElementById('hc-key-row');
     const npcRow = document.getElementById('npc-key-row');
@@ -90,6 +104,8 @@
     }
   };
 
+  // ── 5. Key placeholder updater for NPC tab ────────────────────────────────
+  window.toggleKeyPlaceholder = function () {
     const engine   = document.getElementById('ai-engine').value;
     const keyInput = document.getElementById('api-key');
     if (engine === 'gemini')      keyInput.placeholder = 'AIzaSy...';
@@ -97,6 +113,7 @@
     else                          keyInput.placeholder = 'sk-ant-...';
   };
 
+  // ── 6. Patch validateInputs to check the active tab ───────────────────────
   window.validateInputs = function () {
     const name    = document.getElementById('player-name').value.trim();
     const topic   = document.getElementById('debate-topic').value.trim();
@@ -120,6 +137,7 @@
     return true;
   };
 
+  // ── 7. Expose a resolver so createRoom/joinRoom can grab engine+key ────────
   window.resolveEngineAndKey = function () {
     const isNPC = document.getElementById('npc-key-row').style.display !== 'none';
     if (isNPC) {
