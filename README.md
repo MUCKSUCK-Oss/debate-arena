@@ -2,9 +2,9 @@
 
 ## Why I built this
 
-Let's be real: I lose basically every argument I have with my dad. The guy is just relentless. After getting out-talked at the dinner table for the millionth time, I figured I'd try outsourcing the problem entirely. 
+Let's be real: I lose basically every argument I have with my dad. The guy is just relentless. After getting out-talked at the dinner table for the millionth time, I figured I'd try outsourcing the problem entirely.
 
-The idea was to build a digital ring where AI models could do the arguing for us. I punch in my stance, he enters his, and we let the bots fight it out. That way, we finally see who's actually right based on straight logic, rather than who can talk the loudest or fastest.
+The idea was to create a digital ring in which AI models would do the arguing for us. I punch in my stance, he enters his, and we let the bots fight it out. That way, we finally see who's actually right based on straight logic, rather than who can talk the loudest or fastest.
 
 ## Building it
 
